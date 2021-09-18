@@ -49,7 +49,7 @@ const yellowLed = (val = true) => {
   val ? led.on() : led.off()
 }
 
-module.exports.startTrafficLight = async () => {
+const startTrafficLight = async () => {
   return new Promise(function(resolve, reject) {
     allLights()
     setTimeout(() => {
@@ -77,4 +77,9 @@ module.exports.startTrafficLight = async () => {
       }, 3000)
     }, 2500);
   })
+}
+
+module.exports = {
+  startTrafficLight,
+  yellowLed
 }

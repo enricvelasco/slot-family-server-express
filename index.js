@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Board } = require("johnny-five");
-const {startTrafficLight} = require( "./controllers/start-traffic-light");
+const {startTrafficLight, yellowLed} = require( "./controllers/start-traffic-light");
 const { startSensor1, startSensor2 } = require('./controllers/lap-sensor')
 
 const app = express();
@@ -64,6 +64,15 @@ app.post('/start-traffic-light', (req, res) =>{
     .then(() => {
       res.end()
     })
+})
+
+app.post('/basic-race-info', (req, res) =>{
+  customSocket.emit("new-basic-race",  req.body);
+})
+
+app.post('/start-yellow-light', (req, res) =>{
+  yellowLed()
+  res.end()
 })
 
 /* app.post('/start-lap-sensors', (req, res) =>{
