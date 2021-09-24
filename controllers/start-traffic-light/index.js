@@ -68,6 +68,7 @@ const startTrafficLight = async () => {
                 redLed5()
                 setTimeout(() => {
                   allLights(false)
+                  // greenLed()
                   resolve()
                 }, 3000)
               }, 1500)

@@ -25,23 +25,30 @@ app.options('*', cors());
 
 const board = new Board();
 
+let customSocket = null;
+let sensor1 = null;
+let sensor2 = null;
+
 board.on("ready", () => {
   console.log('board-READY')
 
-  const sensor1 = startSensor1()
-  const sensor2 = startSensor2()
+  try {
+    sensor1 = startSensor1()
+    sensor2 = startSensor2()
 
-  sensor1.on("change", function(val) {
-    console.log('SENSOR-1::::>', val);
-    val === 0 && customSocket.emit("Sensor1", 'FINISH_LAP_SENSOR_1"');
-  });
+    /* sensor1.on("change", function(val) {
+      console.log('SENSOR-1::::>', val);
+      val === 0 && customSocket.emit("Sensor1", 'FINISH_LAP_SENSOR_1"');
+    });
 
-  sensor2.on("change", function(val) {
-    console.log('SENSOR-2::::>', val);
-    // customSocket.emit("Sensor2", 'SENSOR_2');
-    val === 0 && customSocket.emit("Sensor2", 'FINISH_LAP_SENSOR_2"');
-  });
-
+    sensor2.on("change", function(val) {
+      console.log('SENSOR-2::::>', val);
+      // customSocket.emit("Sensor2", 'SENSOR_2');
+      val === 0 && customSocket.emit("Sensor2", 'FINISH_LAP_SENSOR_2"');
+    }); */
+  } catch (e) {
+    console.log('SENSOR_EVENTS_ERROR', e)
+  }
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -57,7 +64,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 /*******************/
-let customSocket = null
+
 
 app.post('/start-traffic-light', (req, res) =>{
   startTrafficLight()
@@ -75,10 +82,15 @@ app.post('/start-yellow-light', (req, res) =>{
   res.end()
 })
 
-/* app.post('/start-lap-sensors', (req, res) =>{
-  const sensor1 = startSensor1()
-  const sensor2 = startSensor2()
-
+//Whenever someone connects this gets executed
+io.on("connection", (socket) => {
+  console.log("New client connected");
+  customSocket = socket
+  // interval = setInterval(() => getApiAndEmit(socket), 1000);
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+    // clearInterval(interval);
+  });
   sensor1.on("change", function(val) {
     console.log('SENSOR-1::::>', val);
     val === 0 && customSocket.emit("Sensor1", 'FINISH_LAP_SENSOR_1"');
@@ -89,26 +101,7 @@ app.post('/start-yellow-light', (req, res) =>{
     // customSocket.emit("Sensor2", 'SENSOR_2');
     val === 0 && customSocket.emit("Sensor2", 'FINISH_LAP_SENSOR_2"');
   });
-
-  res.end()
-}) */
-
-//Whenever someone connects this gets executed
-io.on("connection", (socket) => {
-  console.log("New client connected");
-  customSocket = socket
-  // interval = setInterval(() => getApiAndEmit(socket), 1000);
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-    // clearInterval(interval);
-  });
 });
-
-const getApiAndEmit = socket => {
-  const response = new Date();
-  // Emitting a new message. Will be consumed by the client
-  socket.emit("FromAPI", response);
-};
 
 http2.listen(8000, function() {
   console.log('listening on *:8000');
